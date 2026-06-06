@@ -1,0 +1,82 @@
+<!-- Date: June 6th 2026 -->
+<!-- Author: John Linarez Cerezo -->
+<!-- Description: index.html is the default template for how the website is structed. -->
+<!-- I anticipate this being completly changed to .json files when development continues -->
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <title>Healthcare Without Fear</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+      <link rel="stylesheet" href="style.css">
+   </head>
+   <body>
+      <header class="privacy-banner">
+         <p>
+            🛡️ 
+            <bold>Privacy-First:</bold>
+            We collect 
+            <bold>no personal data</bold>
+            . Your searches are anonymous. 
+            <bold>En Español: 🇪🇸</bold>
+         </p>
+         <div id="google_translate_element" class="language-toggle"></div>
+      </header>
+      <div class="content-container">
+      <h1 class="main-title">Healthcare Without Fear</h1>
+      <p class="tagline">Find affordable care near you — no ID or insurance required.</p>
+      <div class="search-and-filter-box">
+         <label for="city-search" class="search-label">
+         <span class="icon">🔎</span> Search:
+         </label>
+         <input type="text" id="city-search" placeholder="City, Zip Code, or Clinic Name..." onkeyup="filterClinics()">
+         <div class="filters">
+            <label><input type="checkbox" id="no-insurance" onchange="filterClinics()"> No Insurance Required</label>
+            <label><input type="checkbox" id="spanish-staff" onchange="filterClinics()"> Spanish-Speaking Staff</label>
+            <select id="insurance-select" onchange="filterClinics()" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+               <option value="">Any Insurance / None</option>
+               <option value="Aetna">Aetna</option>
+               <option value="Blue Cross">Blue Cross Shield</option>
+               <option value="Cigna">Cigna</option>
+               <option value="Harvard Pilgrim">Harvard Pilgrim</option>
+               <option value="Mass General Brigham">Mass General Brigham</option>
+               <option value="Tufts">Tufts Health Plan</option>
+               <option value="United">United Health / UMR</option>
+               <option value="MassHealth">MassHealth</option>
+               <option value="Medicare">Medicare</option>
+            </select>
+         </div>
+         <p class="search-note">Enter your location or select your insurance plan above.</p>
+      </div>
+      <div class="results-split-container">
+         <div class="results-list-column">
+            <div class="clinic-results-header">
+               <h2>Nearby Clinics <span id="clinic-count"></span></h2>
+            </div>
+            <div id="clinic-data" class="clinic-list">
+               Loading clinics...
+            </div>
+         </div>
+         <div class="results-map-column">
+            <div id="map" class="map-container"></div>
+         </div>
+         </div
+         <div class="submit-clinic-section">
+            <h3>Know a Clinic?</h3>
+            <p>Help us grow this resource. Use our crowdsourcing form.</p>
+            <a href="#" class="cta-button">Submit a Clinic Form (Future Feature)</a>
+         </div>
+         <div class="trust-statement">
+            <p><strong>Trust Statement:</strong> Clinic data is obtained and verified by the getSafeCare team (last date shown on each listing). Please always call ahead to confirm services.</p>
+         </div>
+      </div>
+      <div class="footer">
+         <p>Copyright: Pending Copyright!</p>
+      </div>
+      <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+      <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+      <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+      <script type="text/javascript" src="app.js"></script>
+   </body>
+</html>
