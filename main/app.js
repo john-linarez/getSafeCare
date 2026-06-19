@@ -1,4 +1,4 @@
-// Date: June 6th 2026
+// Date: June 19th 2026
 // Author: John Linarez Cerezo
 // Description: This file is intended to access the database and render the clinics information / map used on the site.
 // It also allows filtering and recording user queries whenever they lookup a clinic
