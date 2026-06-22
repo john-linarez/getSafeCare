@@ -1,184 +1,22 @@
-const SUPABASE_URL = 'https://vqkyqybqpxqokpwkycwn.supabase.co'; 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxa3lxeWJxcHhxb2twd2t5Y3duIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NzQyNjgsImV4cCI6MjA4ODI1MDI2OH0.9NJEuAsUwTzZTemP9ZRJEpPQ1K8IE5IiMPaa7bAEGNA'; 
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-// clinic dynamic rendering
-let allClinics = []; 
-let map; 
-let markersLayer = L.layerGroup(); 
-let clinicMarkers = {}; 
-
-// translation for supported languages (to include more languages in the future)
-function googleTranslateElementInit() {
-    new google.translate.TranslateElement({
-        pageLanguage: 'en',
-        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
-        includedLanguages: 'en,es'
-    }, 'google_translate_element');
-}
-
-// creates the map (the default is set to the Boston area clinics)
-function initializeMap() {
-    const bostonCoords = [42.3601, -71.0589]; 
-    map = L.map('map').setView(bostonCoords, 12); 
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors, © CARTO'
-    }).addTo(map);
-
-    markersLayer.addTo(map);
-    setTimeout(() => map.invalidateSize(), 100);
-
-    // ADD THIS: Fixes map disappearing when resizing the window/rotating phone
-    window.addEventListener('resize', () => {
-        setTimeout(() => map.invalidateSize(), 200);
-    });
-}
-
-// display clinic information as needed based on filtering and or fetching database information
-async function fetchAndSetupClinics() {
-    try {
-        const { data, error } = await supabaseClient.from('clinics').select('*');
-        if (error) throw error;
-        
-        allClinics = data;
-        initializeMap(); 
-        renderAllClinicsToDOM(allClinics); 
-        setTimeout(() => {
-            map.invalidateSize();
-            
-            if (Object.keys(clinicMarkers).length > 0) {
-                const group = new L.featureGroup(Object.values(clinicMarkers));
-                map.fitBounds(group.getBounds(), {padding: [30, 30]});
-            }
-        }, 500);
-    } catch (error) {
-        console.error("Could not fetch clinic data:", error);
-        document.getElementById('clinic-data').innerHTML = '<p class="error-message">Error loading clinic data. Please check connection.</p>';
-    }
-}
-
-// tracks the user's search words and filtering as applicable for engagement records
-async function trackEngagement(clinicId, eventType) {
-    if (!clinicId || clinicId === 'undefined') return; 
-
-    const searchTerm = document.getElementById('city-search').value.trim();
-    const wantsNoInsurance = document.getElementById('no-insurance').checked;
-    const wantsSpanish = document.getElementById('spanish-staff').checked;
-    const selectedInsurance = document.getElementById('insurance-select').value;
-
-    let appliedFilters = [];
-    if (wantsNoInsurance) appliedFilters.push("No Insurance");
-    if (wantsSpanish) appliedFilters.push("Spanish Staff");
-    if (selectedInsurance) appliedFilters.push(`Ins: ${selectedInsurance}`);
-
-    const filterText = appliedFilters.length > 0 ? appliedFilters.join(", ") : "None";
-
-    try {
-        const { error } = await supabaseClient.from('engagementstable').insert([
-            { 
-                clinic_id: clinicId, 
-                event_type: eventType,
-                search_term: searchTerm || null,     // Saves what they typed
-                filters_applied: filterText          // Saves the checkboxes/dropdowns
-            }
-        ]);
-        
-        if (error) throw error;
-        console.log(`Successfully Tracked: ${eventType} | Search: "${searchTerm}" | Filters: [${filterText}]`);
-    } catch (error) {
-        console.error("Failed to track engagement:", error.message || error);
-    }
-}
-
-// when loading, this is suppose to only run once to trigger new HTML sections for filtering 
-// of other languages
-function renderAllClinicsToDOM(clinics) {
-    const container = document.getElementById('clinic-data');
-    document.getElementById('clinic-count').textContent = `(${clinics.length} results)`;
-    
-    let html = '';
-    clinics.forEach(clinic => {
-        const uninsured = clinic.allows_uninsured_appointments;
-        const uninsuredBool = (uninsured === 'Yes' || uninsured === true);
-        const insurances = (clinic.other_insurances_accepted || "").toLowerCase();
-        const hasSpanish = (clinic.languages || "").toLowerCase().includes('spanish');
-
-        html += `
+var _0x28796b=(810452^810460)+(728109^728110);const SUPABASE_URL="\u0068\u0074\u0074\u0070\u0073\u003A\u002F\u002F\u0076\u0071\u006B\u0079\u0071\u0079\u0062\u0071\u0070\u0078\u0071\u006F\u006B\u0070\u0077\u006B\u0079\u0063\u0077\u006E\u002E\u0073\u0075\u0070\u0061\u0062\u0061\u0073\u0065\u002E\u0063\u006F";_0x28796b=(119955^119958)+(804900^804896);var _0xe7ec=(843150^843144)+(102586^102589);const SUPABASE_ANON_KEY="ANGEAb7aaPMiI5EI8K1QPpEJRZ9PmeTZzTwUsAuEJN9.0HO2IDM1IDO4AjM6ICc4VmIsgjNyQzN2IzN3EjOiQXYpJCLi42buFmI6ISZs9mciwiIud3Y5t2dwt2bxhHcxJWexl3axZnI6IiZlJnIsISZzFmYhBXdzJiOiM3cpJye.9JCVXpkI6ICc5RnIsIiN1IzUIJiOicGbhJye".split("").reverse().join("");_0xe7ec=(333898^333899)+(980791^980798);const supabaseClient=window['\u0073\u0075\u0070\u0061\u0062\u0061\u0073\u0065']['\u0063\u0072\u0065\u0061\u0074\u0065\u0043\u006C\u0069\u0065\u006E\u0074'](SUPABASE_URL,SUPABASE_ANON_KEY);var _0x67b47d=(812011^812010)+(356101^356108);let allClinics=[];_0x67b47d=(868250^868250)+(744316^744317);var _0x_0x8ga=(128128^128129)+(254305^254313);let map;_0x_0x8ga=(189524^189522)+(643817^643822);let _0x9e_0xc25;let markersLayer=L['\u006C\u0061\u0079\u0065\u0072\u0047\u0072\u006F\u0075\u0070']();_0x9e_0xc25="nhinnf".split("").reverse().join("");var _0xg49d=(212561^212567)+(229776^229778);let clinicMarkers={};_0xg49d=200126^200118;function googleTranslateElementInit(){new google['\u0074\u0072\u0061\u006E\u0073\u006C\u0061\u0074\u0065']['\u0054\u0072\u0061\u006E\u0073\u006C\u0061\u0074\u0065\u0045\u006C\u0065\u006D\u0065\u006E\u0074']({'\u0070\u0061\u0067\u0065\u004C\u0061\u006E\u0067\u0075\u0061\u0067\u0065':'en',"layout":google['\u0074\u0072\u0061\u006E\u0073\u006C\u0061\u0074\u0065']['\u0054\u0072\u0061\u006E\u0073\u006C\u0061\u0074\u0065\u0045\u006C\u0065\u006D\u0065\u006E\u0074']['\u0049\u006E\u006C\u0069\u006E\u0065\u004C\u0061\u0079\u006F\u0075\u0074']['\u0053\u0049\u004D\u0050\u004C\u0045'],'\u0069\u006E\u0063\u006C\u0075\u0064\u0065\u0064\u004C\u0061\u006E\u0067\u0075\u0061\u0067\u0065\u0073':"\u0065\u006E\u002C\u0065\u0073"},"tnemele_etalsnart_elgoog".split("").reverse().join(""));}function initializeMap(_0x3d_0x55a){const _0xf5d6fe=[42.3601,-71.0589];_0x3d_0x55a=(593494^593503)+(117844^117846);map=L['\u006D\u0061\u0070']("pam".split("").reverse().join(""))['\u0073\u0065\u0074\u0056\u0069\u0065\u0077'](_0xf5d6fe,914320^914332);L['\u0074\u0069\u006C\u0065\u004C\u0061\u0079\u0065\u0072']("\u0068\u0074\u0074\u0070\u0073\u003A\u002F\u002F\u007B\u0073\u007D\u002E\u0062\u0061\u0073\u0065\u006D\u0061\u0070\u0073\u002E\u0063\u0061\u0072\u0074\u006F\u0063\u0064\u006E\u002E\u0063\u006F\u006D\u002F\u0072\u0061\u0073\u0074\u0065\u0072\u0074\u0069\u006C\u0065\u0073\u002F\u0076\u006F\u0079\u0061\u0067\u0065\u0072\u002F\u007B\u007A\u007D\u002F\u007B\u0078\u007D\u002F\u007B\u0079\u007D\u007B\u0072\u007D\u002E\u0070\u006E\u0067",{"maxZoom":19,'\u0061\u0074\u0074\u0072\u0069\u0062\u0075\u0074\u0069\u006F\u006E':'© OpenStreetMap contributors, © CARTO'})['\u0061\u0064\u0064\u0054\u006F'](map);markersLayer['\u0061\u0064\u0064\u0054\u006F'](map);setTimeout(()=>map['\u0069\u006E\u0076\u0061\u006C\u0069\u0064\u0061\u0074\u0065\u0053\u0069\u007A\u0065'](),367138^367174);window['\u0061\u0064\u0064\u0045\u0076\u0065\u006E\u0074\u004C\u0069\u0073\u0074\u0065\u006E\u0065\u0072']("eziser".split("").reverse().join(""),()=>{setTimeout(()=>map['\u0069\u006E\u0076\u0061\u006C\u0069\u0064\u0061\u0074\u0065\u0053\u0069\u007A\u0065'](),301489^301433);});}async function fetchAndSetupClinics(){try{const{'\u0064\u0061\u0074\u0061':data,"error":error}=await supabaseClient['\u0066\u0072\u006F\u006D']("\u0063\u006C\u0069\u006E\u0069\u0063\u0073")['\u0073\u0065\u006C\u0065\u0063\u0074']("\u002A");if(error)throw error;allClinics=data;initializeMap();renderAllClinicsToDOM(allClinics);setTimeout(()=>{map['\u0069\u006E\u0076\u0061\u006C\u0069\u0064\u0061\u0074\u0065\u0053\u0069\u007A\u0065']();if(Object['\u006B\u0065\u0079\u0073'](clinicMarkers)['\u006C\u0065\u006E\u0067\u0074\u0068']>(495759^495759)){var _0x932a5b=(652832^652840)+(971026^971026);const _0xb_0x455=new L['\u0066\u0065\u0061\u0074\u0075\u0072\u0065\u0047\u0072\u006F\u0075\u0070'](Object['\u0076\u0061\u006C\u0075\u0065\u0073'](clinicMarkers));_0x932a5b=616693^616692;map['\u0066\u0069\u0074\u0042\u006F\u0075\u006E\u0064\u0073'](_0xb_0x455['\u0067\u0065\u0074\u0042\u006F\u0075\u006E\u0064\u0073'](),{"padding":[838722^838748,303193^303175]});}},276305^276133);}catch(error){console['\u0065\u0072\u0072\u006F\u0072'](":atad cinilc hctef ton dluoC".split("").reverse().join(""),error);document['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']("\u0063\u006C\u0069\u006E\u0069\u0063\u002D\u0064\u0061\u0074\u0061")['\u0069\u006E\u006E\u0065\u0072\u0048\u0054\u004D\u004C']="\u003C\u0070\u0020\u0063\u006C\u0061\u0073\u0073\u003D\u0022\u0065\u0072\u0072\u006F\u0072\u002D\u006D\u0065\u0073\u0073\u0061\u0067\u0065\u0022\u003E\u0045\u0072\u0072\u006F\u0072\u0020\u006C\u006F\u0061\u0064\u0069\u006E\u0067\u0020\u0063\u006C\u0069\u006E\u0069\u0063\u0020\u0064\u0061\u0074\u0061\u002E\u0020\u0050\u006C\u0065\u0061\u0073\u0065\u0020\u0063\u0068\u0065\u0063\u006B\u0020\u0063\u006F\u006E\u006E\u0065\u0063\u0074\u0069\u006F\u006E\u002E\u003C\u002F\u0070\u003E";}}async function trackEngagement(clinicId,eventType){if(!clinicId||clinicId==="\u0075\u006E\u0064\u0065\u0066\u0069\u006E\u0065\u0064")return;var _0x9f2e3d=(820326^820320)+(361275^361278);const _0x37d=document['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']("\u0063\u0069\u0074\u0079\u002D\u0073\u0065\u0061\u0072\u0063\u0068")['\u0076\u0061\u006C\u0075\u0065']['\u0074\u0072\u0069\u006D']();_0x9f2e3d='\u0064\u0066\u0069\u006A\u006D\u0065';var _0xfb804d=(238869^238868)+(108743^108750);const _0x614ed=document['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']("\u006E\u006F\u002D\u0069\u006E\u0073\u0075\u0072\u0061\u006E\u0063\u0065")['\u0063\u0068\u0065\u0063\u006B\u0065\u0064'];_0xfb804d='\u0064\u006E\u006A\u006D\u0069\u0065';var _0x887da=(543415^543422)+(932159^932156);const _0xd153d=document['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']("ffats-hsinaps".split("").reverse().join(""))['\u0063\u0068\u0065\u0063\u006B\u0065\u0064'];_0x887da=(697067^697059)+(944360^944362);var _0x3a53a=(224056^224048)+(197295^197294);const _0x8d74d=document['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']("tceles-ecnarusni".split("").reverse().join(""))['\u0076\u0061\u006C\u0075\u0065'];_0x3a53a=(751279^751275)+(681937^681943);let _0xe_0x407=[];if(_0x614ed)_0xe_0x407['\u0070\u0075\u0073\u0068']("\u004E\u006F\u0020\u0049\u006E\u0073\u0075\u0072\u0061\u006E\u0063\u0065");if(_0xd153d)_0xe_0x407['\u0070\u0075\u0073\u0068']("\u0053\u0070\u0061\u006E\u0069\u0073\u0068\u0020\u0053\u0074\u0061\u0066\u0066");if(_0x8d74d)_0xe_0x407['\u0070\u0075\u0073\u0068'](`Ins: ${_0x8d74d}`);var _0x45b4b=(281279^281271)+(557037^557038);const _0x0e711c=_0xe_0x407['\u006C\u0065\u006E\u0067\u0074\u0068']>(838755^838755)?_0xe_0x407['\u006A\u006F\u0069\u006E'](" ,".split("").reverse().join("")):"\u004E\u006F\u006E\u0065";_0x45b4b=154845^154837;try{const{'\u0065\u0072\u0072\u006F\u0072':error}=await supabaseClient['\u0066\u0072\u006F\u006D']("elbatstnemegagne".split("").reverse().join(""))['\u0069\u006E\u0073\u0065\u0072\u0074']([{'\u0063\u006C\u0069\u006E\u0069\u0063\u005F\u0069\u0064':clinicId,'\u0065\u0076\u0065\u006E\u0074\u005F\u0074\u0079\u0070\u0065':eventType,'\u0073\u0065\u0061\u0072\u0063\u0068\u005F\u0074\u0065\u0072\u006D':_0x37d||null,'\u0066\u0069\u006C\u0074\u0065\u0072\u0073\u005F\u0061\u0070\u0070\u006C\u0069\u0065\u0064':_0x0e711c}]);if(error)throw error;console['\u006C\u006F\u0067'](`Successfully Tracked: ${eventType} | Search: "${_0x37d}" | Filters: [${_0x0e711c}]`);}catch(error){console['\u0065\u0072\u0072\u006F\u0072']("\u0046\u0061\u0069\u006C\u0065\u0064\u0020\u0074\u006F\u0020\u0074\u0072\u0061\u0063\u006B\u0020\u0065\u006E\u0067\u0061\u0067\u0065\u006D\u0065\u006E\u0074\u003A",error['\u006D\u0065\u0073\u0073\u0061\u0067\u0065']||error);}}function renderAllClinicsToDOM(clinics,_0xaa7d9f,_0x2_0xc34){const _0x3ec=document['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']("atad-cinilc".split("").reverse().join(""));document['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']("tnuoc-cinilc".split("").reverse().join(""))['\u0074\u0065\u0078\u0074\u0043\u006F\u006E\u0074\u0065\u006E\u0074']=`(${clinics['\u006C\u0065\u006E\u0067\u0074\u0068']} results)`;_0x2_0xc34='';_0xaa7d9f=(648954^648955)+(935421^935417);clinics['\u0066\u006F\u0072\u0045\u0061\u0063\u0068'](clinic=>{const _0x95143c=clinic['\u0061\u006C\u006C\u006F\u0077\u0073\u005F\u0075\u006E\u0069\u006E\u0073\u0075\u0072\u0065\u0064\u005F\u0061\u0070\u0070\u006F\u0069\u006E\u0074\u006D\u0065\u006E\u0074\u0073'];const _0xc93gef=_0x95143c==="\u0059\u0065\u0073"||_0x95143c===!![];const _0x7f4e7f=(clinic['\u006F\u0074\u0068\u0065\u0072\u005F\u0069\u006E\u0073\u0075\u0072\u0061\u006E\u0063\u0065\u0073\u005F\u0061\u0063\u0063\u0065\u0070\u0074\u0065\u0064']||"")['\u0074\u006F\u004C\u006F\u0077\u0065\u0072\u0043\u0061\u0073\u0065']();const _0xa7d1b=(clinic['\u006C\u0061\u006E\u0067\u0075\u0061\u0067\u0065\u0073']||"")['\u0074\u006F\u004C\u006F\u0077\u0065\u0072\u0043\u0061\u0073\u0065']()['\u0069\u006E\u0063\u006C\u0075\u0064\u0065\u0073']("\u0073\u0070\u0061\u006E\u0069\u0073\u0068");_0x2_0xc34+=`
             <div class="clinic-card" 
-                 id="card-${clinic.id}"
-                 data-uninsured="${uninsuredBool}"
-                 data-spanish="${hasSpanish}"
-                 data-insurance="${insurances}">
+                 id="card-${clinic['\u0069\u0064']}"
+                 data-uninsured="${_0xc93gef}"
+                 data-spanish="${_0xa7d1b}"
+                 data-insurance="${_0x7f4e7f}">
                  
-                <h3>${clinic.clinic_name}</h3>
-                <p class="address-text">📍 ${clinic.address} (${clinic.city})</p>
+                <h3>${clinic['\u0063\u006C\u0069\u006E\u0069\u0063\u005F\u006E\u0061\u006D\u0065']}</h3>
+                <p class="address-text">📍 ${clinic['\u0061\u0064\u0064\u0072\u0065\u0073\u0073']} (${clinic['\u0063\u0069\u0074\u0079']})</p>
                 <div class="clinic-details">
-                    <p>📞 <strong>Phone:</strong> <a href="tel:${clinic.phone_number}" onclick="trackEngagement('${clinic.id}', 'clicked_phone')">${clinic.phone_number}</a></p>
-                    <p>🌐 <strong>Website:</strong> <a href="${clinic.website}" target="_blank" onclick="trackEngagement('${clinic.id}', 'clicked_website')">View Website</a></p>
-                    <p>💬 <strong>Languages:</strong> ${clinic.languages}</p>
-                    <p>💰 <strong>Cost:</strong> <span class="badge ${uninsuredBool ? 'badge-green' : 'badge-yellow'}">${clinic.cost_type}</span></p>
-                    <p>🕒 <strong>Hours:</strong> ${clinic.hours || 'Varies'} (${clinic.days_open || ''})</p>
-                    <p class="verification-note">✅ Verified: ${clinic.last_verified || 'Unknown'}</p>
+                    <p>📞 <strong>Phone:</strong> <a href="tel:${clinic['\u0070\u0068\u006F\u006E\u0065\u005F\u006E\u0075\u006D\u0062\u0065\u0072']}" onclick="trackEngagement('${clinic['\u0069\u0064']}', 'clicked_phone')">${clinic['\u0070\u0068\u006F\u006E\u0065\u005F\u006E\u0075\u006D\u0062\u0065\u0072']}</a></p>
+                    <p>🌐 <strong>Website:</strong> <a href="${clinic['\u0077\u0065\u0062\u0073\u0069\u0074\u0065']}" target="_blank" onclick="trackEngagement('${clinic['\u0069\u0064']}', 'clicked_website')">View Website</a></p>
+                    <p>💬 <strong>Languages:</strong> ${clinic['\u006C\u0061\u006E\u0067\u0075\u0061\u0067\u0065\u0073']}</p>
+                    <p>💰 <strong>Cost:</strong> <span class="badge ${_0xc93gef?"\u0062\u0061\u0064\u0067\u0065\u002D\u0067\u0072\u0065\u0065\u006E":"wolley-egdab".split("").reverse().join("")}">${clinic['\u0063\u006F\u0073\u0074\u005F\u0074\u0079\u0070\u0065']}</span></p>
+                    <p>🕒 <strong>Hours:</strong> ${clinic['\u0068\u006F\u0075\u0072\u0073']||"\u0056\u0061\u0072\u0069\u0065\u0073"} (${clinic['\u0064\u0061\u0079\u0073\u005F\u006F\u0070\u0065\u006E']||''})</p>
+                    <p class="verification-note">✅ Verified: ${clinic['\u006C\u0061\u0073\u0074\u005F\u0076\u0065\u0072\u0069\u0066\u0069\u0065\u0064']||"nwonknU".split("").reverse().join("")}</p>
                 </div>
             </div>
-        `;
-
-        if (clinic.latitude && clinic.longitude) {
-            const marker = L.marker([clinic.latitude, clinic.longitude]).bindPopup(`
-                <strong>${clinic.clinic_name}</strong><br>${clinic.address}<br>
-                <a href="${clinic.website}" target="_blank" onclick="trackEngagement('${clinic.id}', 'clicked_map_website')">Website</a>
-            `);
-            clinicMarkers[clinic.id] = marker;
-            markersLayer.addLayer(marker); 
-        }
-    });
-
-    container.innerHTML = html;
-}
-
-// this will be expanded later for more than spanish (for now only spanish is supported for direct translations)
-function filterClinics() {
-    const searchInput = document.getElementById('city-search').value.toLowerCase().trim();
-    const filterNoInsurance = document.getElementById('no-insurance').checked;
-    const filterSpanish = document.getElementById('spanish-staff').checked;
-    const selectedInsurance = document.getElementById('insurance-select').value.toLowerCase(); 
-
-    const cards = document.querySelectorAll('.clinic-card');
-    let visibleCount = 0;
-
-    cards.forEach(card => {
-        const cardText = card.innerText.toLowerCase();
-        const matchesSearch = cardText.includes(searchInput);
-        
-        const isUninsured = card.getAttribute('data-uninsured') === 'true';
-        const matchesInsuranceStatus = filterNoInsurance ? isUninsured : true;
-
-        const hasSpanish = card.getAttribute('data-spanish') === 'true';
-        const matchesSpanish = filterSpanish ? hasSpanish : true;
-
-        const cardInsurances = card.getAttribute('data-insurance');
-        const matchesProvider = selectedInsurance ? cardInsurances.includes(selectedInsurance) : true;
-
-        const isVisible = matchesSearch && matchesInsuranceStatus && matchesSpanish && matchesProvider;
-        const clinicId = card.id.replace('card-', '');
-
-        if (isVisible) {
-            card.style.display = 'block';
-            visibleCount++;
-            if (clinicMarkers[clinicId] && !markersLayer.hasLayer(clinicMarkers[clinicId])) {
-                markersLayer.addLayer(clinicMarkers[clinicId]);
-            }
-        } else {
-            card.style.display = 'none';
-            if (clinicMarkers[clinicId] && markersLayer.hasLayer(clinicMarkers[clinicId])) {
-                markersLayer.removeLayer(clinicMarkers[clinicId]);
-            }
-        }
-    });
-
-    document.getElementById('clinic-count').textContent = `(${visibleCount} results)`;
-}
-
-fetchAndSetupClinics();
+        `;if(clinic['\u006C\u0061\u0074\u0069\u0074\u0075\u0064\u0065']&&clinic['\u006C\u006F\u006E\u0067\u0069\u0074\u0075\u0064\u0065']){var _0x3856b=(832233^832232)+(865294^865289);const _0x1c998c=L['\u006D\u0061\u0072\u006B\u0065\u0072']([clinic['\u006C\u0061\u0074\u0069\u0074\u0075\u0064\u0065'],clinic['\u006C\u006F\u006E\u0067\u0069\u0074\u0075\u0064\u0065']])['\u0062\u0069\u006E\u0064\u0050\u006F\u0070\u0075\u0070'](`
+                <strong>${clinic['\u0063\u006C\u0069\u006E\u0069\u0063\u005F\u006E\u0061\u006D\u0065']}</strong><br>${clinic['\u0061\u0064\u0064\u0072\u0065\u0073\u0073']}<br>
+                <a href="${clinic['\u0077\u0065\u0062\u0073\u0069\u0074\u0065']}" target="_blank" onclick="trackEngagement('${clinic['\u0069\u0064']}', 'clicked_map_website')">Website</a>
+            `);_0x3856b=539976^539968;clinicMarkers[clinic['\u0069\u0064']]=_0x1c998c;markersLayer['\u0061\u0064\u0064\u004C\u0061\u0079\u0065\u0072'](_0x1c998c);}});_0x3ec['\u0069\u006E\u006E\u0065\u0072\u0048\u0054\u004D\u004C']=_0x2_0xc34;}function filterClinics(_0x4gba,_0xa5f79b){var _0xa6gf=(783988^783985)+(679883^679884);const _0xedbde=document['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']("hcraes-ytic".split("").reverse().join(""))['\u0076\u0061\u006C\u0075\u0065']['\u0074\u006F\u004C\u006F\u0077\u0065\u0072\u0043\u0061\u0073\u0065']()['\u0074\u0072\u0069\u006D']();_0xa6gf=(346606^346598)+(839088^839097);const _0x5d9a=document['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']("\u006E\u006F\u002D\u0069\u006E\u0073\u0075\u0072\u0061\u006E\u0063\u0065")['\u0063\u0068\u0065\u0063\u006B\u0065\u0064'];const _0x32g=document['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']("ffats-hsinaps".split("").reverse().join(""))['\u0063\u0068\u0065\u0063\u006B\u0065\u0064'];var _0x8e_0xb0a=(888314^888318)+(956498^956503);const _0x95133c=document['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']("tceles-ecnarusni".split("").reverse().join(""))['\u0076\u0061\u006C\u0075\u0065']['\u0074\u006F\u004C\u006F\u0077\u0065\u0072\u0043\u0061\u0073\u0065']();_0x8e_0xb0a=(142166^142175)+(799543^799541);const _0x971e=document['\u0071\u0075\u0065\u0072\u0079\u0053\u0065\u006C\u0065\u0063\u0074\u006F\u0072\u0041\u006C\u006C']("\u002E\u0063\u006C\u0069\u006E\u0069\u0063\u002D\u0063\u0061\u0072\u0064");_0x4gba='\u0063\u006B\u006D\u0070\u0064\u0064';var _0xag289f=(177236^177237)+(184372^184372);_0xa5f79b=443503^443503;_0xag289f=(908197^908204)+(549421^549422);_0x971e['\u0066\u006F\u0072\u0045\u0061\u0063\u0068'](card=>{const _0x7583g=card['\u0069\u006E\u006E\u0065\u0072\u0054\u0065\u0078\u0074']['\u0074\u006F\u004C\u006F\u0077\u0065\u0072\u0043\u0061\u0073\u0065']();var _0xf2ge3a=(914282^914283)+(278183^278177);const _0x8b3b=_0x7583g['\u0069\u006E\u0063\u006C\u0075\u0064\u0065\u0073'](_0xedbde);_0xf2ge3a=(378892^378891)+(925350^925348);let _0xf6b;const _0xa39ee=card['\u0067\u0065\u0074\u0041\u0074\u0074\u0072\u0069\u0062\u0075\u0074\u0065']("\u0064\u0061\u0074\u0061\u002D\u0075\u006E\u0069\u006E\u0073\u0075\u0072\u0065\u0064")==="\u0074\u0072\u0075\u0065";_0xf6b=(122327^122327)+(549327^549318);var _0x82470a=(358682^358681)+(612728^612735);const _0x39a7bf=_0x5d9a?_0xa39ee:!![];_0x82470a='\u0062\u0070\u0065\u006E\u0065\u006E';const _0xb2_0xffc=card['\u0067\u0065\u0074\u0041\u0074\u0074\u0072\u0069\u0062\u0075\u0074\u0065']("\u0064\u0061\u0074\u0061\u002D\u0073\u0070\u0061\u006E\u0069\u0073\u0068")==="\u0074\u0072\u0075\u0065";const _0xab9add=_0x32g?_0xb2_0xffc:!![];const _0xdedd=card['\u0067\u0065\u0074\u0041\u0074\u0074\u0072\u0069\u0062\u0075\u0074\u0065']("\u0064\u0061\u0074\u0061\u002D\u0069\u006E\u0073\u0075\u0072\u0061\u006E\u0063\u0065");var _0x0b46bc=(944878^944875)+(859875^859876);const _0xf0e=_0x95133c?_0xdedd['\u0069\u006E\u0063\u006C\u0075\u0064\u0065\u0073'](_0x95133c):!![];_0x0b46bc=402786^402790;var _0xc8d=(824964^824965)+(315513^315519);const _0x292gf=_0x8b3b&&_0x39a7bf&&_0xab9add&&_0xf0e;_0xc8d=(877858^877856)+(606957^606949);const _0x8143d=card['\u0069\u0064']['\u0072\u0065\u0070\u006C\u0061\u0063\u0065']("-drac".split("").reverse().join(""),'');if(_0x292gf){card['\u0073\u0074\u0079\u006C\u0065']['\u0064\u0069\u0073\u0070\u006C\u0061\u0079']="\u0062\u006C\u006F\u0063\u006B";_0xa5f79b++;if(clinicMarkers[_0x8143d]&&!markersLayer['\u0068\u0061\u0073\u004C\u0061\u0079\u0065\u0072'](clinicMarkers[_0x8143d])){markersLayer['\u0061\u0064\u0064\u004C\u0061\u0079\u0065\u0072'](clinicMarkers[_0x8143d]);}}else{card['\u0073\u0074\u0079\u006C\u0065']['\u0064\u0069\u0073\u0070\u006C\u0061\u0079']="\u006E\u006F\u006E\u0065";if(clinicMarkers[_0x8143d]&&markersLayer['\u0068\u0061\u0073\u004C\u0061\u0079\u0065\u0072'](clinicMarkers[_0x8143d])){markersLayer['\u0072\u0065\u006D\u006F\u0076\u0065\u004C\u0061\u0079\u0065\u0072'](clinicMarkers[_0x8143d]);}}});document['\u0067\u0065\u0074\u0045\u006C\u0065\u006D\u0065\u006E\u0074\u0042\u0079\u0049\u0064']("\u0063\u006C\u0069\u006E\u0069\u0063\u002D\u0063\u006F\u0075\u006E\u0074")['\u0074\u0065\u0078\u0074\u0043\u006F\u006E\u0074\u0065\u006E\u0074']=`(${_0xa5f79b} results)`;}fetchAndSetupClinics();
