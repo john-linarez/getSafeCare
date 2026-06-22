@@ -2,12 +2,22 @@ const SUPABASE_URL = 'https://vqkyqybqpxqokpwkycwn.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxa3lxeWJxcHhxb2twd2t5Y3duIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI2NzQyNjgsImV4cCI6MjA4ODI1MDI2OH0.9NJEuAsUwTzZTemP9ZRJEpPQ1K8IE5IiMPaa7bAEGNA'; 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// clinic dynamic rendering
 let allClinics = []; 
 let map; 
 let markersLayer = L.layerGroup(); 
 let clinicMarkers = {}; 
 
+// translation for supported languages (to include more languages in the future)
+function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+        pageLanguage: 'en',
+        layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+        includedLanguages: 'en,es'
+    }, 'google_translate_element');
+}
 
+// creates the map (the default is set to the Boston area clinics)
 function initializeMap() {
     const bostonCoords = [42.3601, -71.0589]; 
     map = L.map('map').setView(bostonCoords, 12); 
@@ -19,11 +29,14 @@ function initializeMap() {
 
     markersLayer.addTo(map);
     setTimeout(() => map.invalidateSize(), 100);
+
+    // ADD THIS: Fixes map disappearing when resizing the window/rotating phone
     window.addEventListener('resize', () => {
         setTimeout(() => map.invalidateSize(), 200);
     });
 }
 
+// display clinic information as needed based on filtering and or fetching database information
 async function fetchAndSetupClinics() {
     try {
         const { data, error } = await supabaseClient.from('clinics').select('*');
@@ -46,6 +59,7 @@ async function fetchAndSetupClinics() {
     }
 }
 
+// tracks the user's search words and filtering as applicable for engagement records
 async function trackEngagement(clinicId, eventType) {
     if (!clinicId || clinicId === 'undefined') return; 
 
@@ -66,8 +80,8 @@ async function trackEngagement(clinicId, eventType) {
             { 
                 clinic_id: clinicId, 
                 event_type: eventType,
-                search_term: searchTerm || null,     
-                filters_applied: filterText          
+                search_term: searchTerm || null,     // Saves what they typed
+                filters_applied: filterText          // Saves the checkboxes/dropdowns
             }
         ]);
         
@@ -78,6 +92,8 @@ async function trackEngagement(clinicId, eventType) {
     }
 }
 
+// when loading, this is suppose to only run once to trigger new HTML sections for filtering 
+// of other languages
 function renderAllClinicsToDOM(clinics) {
     const container = document.getElementById('clinic-data');
     document.getElementById('clinic-count').textContent = `(${clinics.length} results)`;
@@ -122,6 +138,7 @@ function renderAllClinicsToDOM(clinics) {
     container.innerHTML = html;
 }
 
+// this will be expanded later for more than spanish (for now only spanish is supported for direct translations)
 function filterClinics() {
     const searchInput = document.getElementById('city-search').value.toLowerCase().trim();
     const filterNoInsurance = document.getElementById('no-insurance').checked;
